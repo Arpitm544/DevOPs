@@ -1,0 +1,46 @@
+pipeline 
+{
+   //def output=sh(script:'java -jar target/sample-java-project-1.0-SNAPSHOT.jar',returnStdout:true).trim()
+    agent any
+    tools
+    {
+        maven 'maven'
+    }
+     stages
+     {
+        stage("CheckOut code")
+        {
+            steps
+            {
+            git 'https://github.com/Arpitm544/Arpit.git'
+        }
+        }
+        stage("Build")
+        {
+            steps{
+               sh 'mvn clean install' 
+            }
+        }
+        stage("java ")
+        {
+            steps
+            {
+                script
+                {
+                    def output=sh(script:'java -jar target/simple-java-project-1.0-SNAPSHOT.jar',returnStdout:true).trim();
+                    println "code ${output} is runing"
+                }
+            }
+        }
+     }
+     post{
+
+        success{
+            echo "build successfully"
+        }
+
+        failure{
+            echo "build failure"
+        }
+     }
+}
