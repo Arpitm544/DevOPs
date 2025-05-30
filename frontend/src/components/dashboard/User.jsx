@@ -104,7 +104,7 @@ const User = () => {
         <div className="container m-auto w-screen">
           <div className="heading h-full">
             <div className="h-[6%] ml-10 font-bold text-8xl">
-              <h1 className="pt-20">WELCOME,{user.name} </h1>
+              <h1 className="pt-20">WELCOME,{user?.name||'Guest'} </h1>
             </div>
             <div className="h-[10%] mt-8">
               <h2 className="text-7xl font-bold text-transparent ml-5 bg-clip-text bg-gradient-to-r from-sky-900 to-orange-100 border-orange-100">
