@@ -4,7 +4,6 @@ import axios from 'axios';
 import LottiePic from "../animate/lottie4";
 import Loadingg from "../animate/loading";
 
-
 const Userappointments = () => {
   const [bookings, setBookings] = useState([]);
   const [error, setError] = useState(null);
@@ -16,19 +15,27 @@ const Userappointments = () => {
     const fetchBookings = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get(`https://devops-1-4e4p.onrender.com/api/bookings/client/${id}`, {
+        if (!token) {
+          navigate('/signin');
+          return;
+        }
+        const res = await axios.get(`https://devops-1-4e4p.onrender.com/api/bookings/by-client/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setBookings(res.data);
       } catch (err) {
-        setError(err.response?.data?.message || 'Error fetching bookings');
+        if (err.response?.status === 401) {
+          navigate('/signin');
+        } else {
+          setError(err.response?.data?.message || 'Error fetching bookings');
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchBookings();
-  }, [id]);
+  }, [id, navigate]);
 
   const handlePaymentRedirect = (bookingId, price) => {
     navigate(`/payment/${bookingId}`);
@@ -49,8 +56,8 @@ const Userappointments = () => {
       </div>
 
       <div className='w-full grid grid-cols-2 border-white justify-center'>
-        <div className=''>
-          <div className='h-200 w-200 fixed'>
+        <div className='relative'>
+          <div className='absolute top-0 left-0'>
             <LottiePic />
           </div>
         </div>
