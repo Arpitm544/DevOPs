@@ -43,18 +43,21 @@ const verifyPayment = async (req, res) => {
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest("hex");
 
+    const isSignatureValid = sign === razorpay_signature;
+    const paymentStatus = isSignatureValid ? "Paid" : "Failed";
+
     const newPayment = new Payment({
       orderId: razorpay_order_id,
       paymentId: razorpay_payment_id,
       signature: razorpay_signature,
       amount: amount,
       createdAt: new Date(),
-      status: sign === razorpay_signature ? "Paid" : "Failed"
+      status: paymentStatus
     });
 
     await newPayment.save();
 
-    if (sign === razorpay_signature) {
+    if (isSignatureValid) {
       res.status(200).json({ message: "Payment verified" });
     } else {
       res.status(400).json({ message: "Invalid signature" });
