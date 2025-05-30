@@ -3,6 +3,11 @@ const crypto = require("crypto");
 const Payment=require('../../db/models/Payment')
 require('dotenv').config();
 
+// Check if environment variables are loaded
+if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+  console.error("Razorpay credentials not found in environment variables");
+}
+
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -16,17 +21,32 @@ const createOrder = async (req, res) => {
       return res.status(400).json({ message: "Invalid amount provided" });
     }
 
+    // Log the amount being processed
+    console.log("Creating order for amount:", amount);
+
     const options = {
-      amount: amount * 100, // Amount in paise
+      amount: Math.round(amount * 100), // Amount in paise, ensure it's an integer
       currency: "INR",
       receipt: `receipt_order_${Date.now()}`,
     };
 
+    // Log the options being sent to Razorpay
+    console.log("Razorpay options:", options);
+
     const order = await razorpay.orders.create(options);
+    console.log("Order created successfully:", order);
     res.status(200).json(order);
   } catch (error) {
-    console.error("Error creating order:", error);
-    res.status(500).json({ message: "Error creating Razorpay order", error: error.message });
+    console.error("Error creating order:", {
+      message: error.message,
+      stack: error.stack,
+      response: error.response?.data
+    });
+    res.status(500).json({ 
+      message: "Error creating Razorpay order", 
+      error: error.message,
+      details: error.response?.data || "No additional details available"
+    });
   }
 };
 

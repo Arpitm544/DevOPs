@@ -43,13 +43,16 @@ const PaymentPage = () => {
         return;
       }
 
-      const amount = price;
+      const amount = Number(price);
+      console.log("Sending payment request for amount:", amount);
+
       const orderRes = await axios.post(
         `https://devops-1-4e4p.onrender.com/api/payment/createOrder`,
         { amount }
       );
 
       const { id: order_id, amount: orderAmount, currency } = orderRes.data;
+      console.log("Order created:", { order_id, orderAmount, currency });
 
       const options = {
         key: "rzp_test_L1sqG4NKJOJaSb",
@@ -60,6 +63,7 @@ const PaymentPage = () => {
         order_id,
         handler: async function (response) {
           try {
+            console.log("Payment response:", response);
             const verifyRes = await axios.post(
               `https://devops-1-4e4p.onrender.com/api/payment/verifyPayment`,
               {
@@ -106,7 +110,7 @@ const PaymentPage = () => {
       rzp.open();
     } catch (err) {
       console.error("Payment initiation error:", err);
-      setError("Payment failed to initiate. Please try again.");
+      setError(err.response?.data?.message || "Payment failed to initiate. Please try again.");
     }
   };
 
