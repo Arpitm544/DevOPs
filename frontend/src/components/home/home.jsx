@@ -155,7 +155,7 @@ const Home = () => {
             <div className="appearanimation text-orange-200 h-full w-full text-xl bg-sky-900 hover:scale-110 transition-all ease-in-out duration-500  border-29 border-sky-900  rounded-xl ">
               <h1 className="text-5xl text-orange-200">Clients & Event Organizers:</h1>
               
-              Clients and event organizers can discover exceptional local talent, from musicians and magicians to comedians and dancers. Effortlessly browse and filter by category, price, availability, and location. Enjoy hassle-free bookings with instant gig requests, availability confirmation, and secure payments—all in one convenient platform.
+              Clients and event organizers can discover exceptional local talent, from musicians and magicians to comedians and dancers. Effortlessly browse and filter by category, price, availability, and location.
               
             </div>
           </div>
