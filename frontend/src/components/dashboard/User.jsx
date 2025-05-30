@@ -40,6 +40,7 @@ const User = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [userLoading, setUserLoading] = useState(true);
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -50,7 +51,6 @@ const User = () => {
         setPerformers(res.data);
         const uniqueCategories = Array.from(new Set(res.data.map(p => p.category))).filter(Boolean);
         setCategories(uniqueCategories);
-
       } catch (err) {
         setError(err.message || "Failed to fetch performers");
       } finally {
@@ -59,10 +59,15 @@ const User = () => {
     };
     fetchPerformers();
   }, []);
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/signin');
+          return;
+        }
         const res = await axios.get(`https://devops-1-4e4p.onrender.com/api/users/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -71,11 +76,16 @@ const User = () => {
         setUser(res.data);
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to fetch profile');
+        if (err.response?.status === 401) {
+          navigate('/signin');
+        }
+      } finally {
+        setUserLoading(false);
       }
     };
 
     fetchProfile();
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     if (selectedCategory === "All") {
@@ -87,10 +97,12 @@ const User = () => {
   }, [performers, selectedCategory]);
 
   const handleYourAppointment = () => {
-    navigate(`/user/appointments/${id}`);
+    if (user?._id) {
+      navigate(`/user/appointments/${user._id}`);
+    }
   };
 
-  if (loading) {
+  if (loading || userLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loadingg />
@@ -104,7 +116,7 @@ const User = () => {
         <div className="container m-auto w-screen">
           <div className="heading h-full">
             <div className="h-[6%] ml-10 font-bold text-8xl">
-              <h1 className="pt-20">WELCOME,{user.name} </h1>
+              <h1 className="pt-20">WELCOME, {user?.name || 'Guest'}</h1>
             </div>
             <div className="h-[10%] mt-8">
               <h2 className="text-7xl font-bold text-transparent ml-5 bg-clip-text bg-gradient-to-r from-sky-900 to-orange-100 border-orange-100">
@@ -117,38 +129,32 @@ const User = () => {
               </div>
             </div>
 
-           
             <div className="my-8 ml-10">
-              
               <div className="flex space-x-183">
-<label htmlFor="categoryFilter" className="font-semibold mr-4 text-xl text-sky-900">
-                Filter by Category:
-              </label>
-              <select
-                id="categoryFilter"
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="border border-sky-900 h-10 w-40 rounded-md px-4 py-2"
-              >
-                <option value="All">All</option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-              <div>
-                 <button
-              onClick={handleYourAppointment}
-              className="text-white font-semibold  w-60 h-20  z-[100] rounded-lg bg-sky-900 hover:shadow-xl hover:scale-105 hover:bg-sky-950 hover:shadow-black  transition-all duration-400 ease-in-out"
-            >
-              Your Appointments
-            </button>
-
-              </div>
-
+                <label htmlFor="categoryFilter" className="font-semibold mr-4 text-xl text-sky-900">
+                  Filter by Category:
+                </label>
+                <select
+                  id="categoryFilter"
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="border border-sky-900 h-10 w-40 rounded-md px-4 py-2"
+                >
+                  <option value="All">All</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+                <div>
+                  <button
+                    onClick={handleYourAppointment}
+                    className="text-white font-semibold w-60 h-20 z-[100] rounded-lg bg-sky-900 hover:shadow-xl hover:scale-105 hover:bg-sky-950 hover:shadow-black transition-all duration-400 ease-in-out"
+                  >
+                    Your Appointments
+                  </button>
+                </div>
               </div>
             </div>
-
-           
 
             <div className="w-full h-[84%] mt-20 justify-center">
               <div className="w-full h-full md:w-full border-orange-100 flex flex-col items-center justify-center relative">
