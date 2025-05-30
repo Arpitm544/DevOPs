@@ -35,7 +35,7 @@ const Signin = () => {
       const res = await axios.post(
         `https://devops-1-4e4p.onrender.com/api/users/login`,
         {
-          phone: Number(phone),
+          phone: phone,
           password,
         }
       );
