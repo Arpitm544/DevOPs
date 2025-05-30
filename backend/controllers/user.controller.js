@@ -42,15 +42,11 @@ class UserController {
   }
 
   static async login(req, res) {
+    
+    
     try {
       const { phone, password } = req.body;
-      const phoneNumber = Number(phone);
-      
-      if (isNaN(phoneNumber)) {
-        return res.status(400).json({ message: 'Invalid phone number format' });
-      }
-
-      const user = await User.findOne({ phone: phoneNumber }).select("+password");
+      const user = await User.findOne({ phone }).select("+password");
       if (!user || !(await bcrypt.compare(password, user.password))) {
         return res.status(400).json({ message: 'Invalid phone or password' });
       }

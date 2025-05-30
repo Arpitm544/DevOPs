@@ -1,22 +1,34 @@
 const errorHandler = (err, req, res, next) => {
     console.error(err.stack);
 
+    // Handle validation errors
     if (err.name === 'ValidationError') {
         return res.status(400).json({
-            message: 'Validation Error',
-            errors: Object.values(err.errors).map(error => error.message)
+            status: 'error',
+            message: err.message
         });
     }
 
-    if (err.name === 'CastError') {
+    // Handle MongoDB duplicate key errors
+    if (err.code === 11000) {
         return res.status(400).json({
-            message: 'Invalid ID format'
+            status: 'error',
+            message: 'Duplicate field value entered'
         });
     }
 
-    res.status(500).json({
-        message: 'Internal Server Error',
-        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    // Handle JWT errors
+    if (err.name === 'JsonWebTokenError') {
+        return res.status(401).json({
+            status: 'error',
+            message: 'Invalid token'
+        });
+    }
+
+    // Default error
+    res.status(err.status || 500).json({
+        status: 'error',
+        message: err.message || 'Internal server error'
     });
 };
 
