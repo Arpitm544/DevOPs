@@ -35,14 +35,10 @@ const PaymentPage = () => {
   const handlePayment = async () => {
     try {
       const amount = price;
-      const token = localStorage.getItem("token");
 
       const orderRes = await axios.post(
         `https://devops-1-4e4p.onrender.com/api/payment/createOrder`,
-        { amount },
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
+        { amount }
       );
 
       const { id: order_id, amount: orderAmount, currency } = orderRes.data;
@@ -55,32 +51,27 @@ const PaymentPage = () => {
         description: "Booking Payment",
         order_id,
         handler: async function (response) {
-          try {
-            const verifyRes = await axios.post(
-              `https://devops-1-4e4p.onrender.com/api/payment/verifyPayment`,
+          const verifyRes = await axios.post(
+            `https://devops-1-4e4p.onrender.com/api/payment/verifyPayment`,
+            {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            }
+          );
+
+          if (verifyRes.data.message === "Payment verified") {
+            await axios.put(
+              `https://devops-1-4e4p.onrender.com/api/bookings/${bookingId}/payment`,
+              { paymentStatus: "Paid" },
               {
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-              },
-              {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
               }
             );
-
-            if (verifyRes.data.message === "Payment verified") {
-              await axios.put(
-                `https://devops-1-4e4p.onrender.com/api/bookings/${bookingId}/payment`,
-                { paymentStatus: "Paid" },
-                {
-                  headers: { Authorization: `Bearer ${token}` }
-                }
-              );
-              alert("Payment Successful!");
-              navigate("/");
-            }
-          } catch (err) {
-            setError("Payment verification failed");
+            alert("Payment Successful!");
+            navigate("/");
           }
         },
         prefill: {
@@ -95,7 +86,8 @@ const PaymentPage = () => {
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err) {
-      setError("Payment failed to initiate");
+      console.error(err);
+      setError("Payment failed to initiate.");
     }
   };
 
