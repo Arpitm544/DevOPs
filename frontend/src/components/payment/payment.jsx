@@ -9,6 +9,7 @@ const PaymentPage = () => {
   const [price, setPrice] = useState(null);
   const [performer, setPerformer] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,6 +27,9 @@ const PaymentPage = () => {
         setPerformer(res.data.performers);
       } catch (err) {
         setError("Error fetching booking details");
+        console.error("Booking fetch error:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -34,8 +38,12 @@ const PaymentPage = () => {
 
   const handlePayment = async () => {
     try {
-      const amount = price;
+      if (!price || price <= 0) {
+        setError("Invalid price amount");
+        return;
+      }
 
+      const amount = price;
       const orderRes = await axios.post(
         `https://devops-1-4e4p.onrender.com/api/payment/createOrder`,
         { amount }
@@ -47,32 +55,37 @@ const PaymentPage = () => {
         key: "rzp_test_L1sqG4NKJOJaSb",
         amount: orderAmount,
         currency,
-        name: performer?.name,
+        name: performer?.name || "Booking Payment",
         description: "Booking Payment",
         order_id,
         handler: async function (response) {
-          const verifyRes = await axios.post(
-            `https://devops-1-4e4p.onrender.com/api/payment/verifyPayment`,
-            {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              amount:price,
-            }
-          );
-
-          if (verifyRes.data.message === "Payment verified") {
-            await axios.put(
-              `https://devops-1-4e4p.onrender.com/api/bookings/${bookingId}/payment`,
-              { paymentStatus: "Paid" },
+          try {
+            const verifyRes = await axios.post(
+              `https://devops-1-4e4p.onrender.com/api/payment/verifyPayment`,
               {
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                amount: price,
               }
             );
-            alert("Payment Successful!");
-            navigate("/");
+
+            if (verifyRes.data.message === "Payment verified") {
+              await axios.put(
+                `https://devops-1-4e4p.onrender.com/api/bookings/${bookingId}/payment`,
+                { paymentStatus: "Paid" },
+                {
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  },
+                }
+              );
+              alert("Payment Successful!");
+              navigate("/");
+            }
+          } catch (err) {
+            console.error("Payment verification error:", err);
+            setError("Payment verification failed. Please contact support.");
           }
         },
         prefill: {
@@ -82,15 +95,28 @@ const PaymentPage = () => {
         theme: {
           color: "#6366F1",
         },
+        modal: {
+          ondismiss: function() {
+            setError("Payment cancelled");
+          }
+        }
       };
 
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err) {
-      console.error(err);
-      setError("Payment failed to initiate.");
+      console.error("Payment initiation error:", err);
+      setError("Payment failed to initiate. Please try again.");
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-sky-900"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white text-center">
@@ -110,9 +136,13 @@ const PaymentPage = () => {
 
         {/* Right Column - Booking Summary */}
         <div className="flex items-center justify-center p-6">
-          {error && <p className="text-red-500">{error}</p>}
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+              <span className="block sm:inline">{error}</span>
+            </div>
+          )}
           {booking ? (
-            <div className="bg-white w-full max-w-2xl p-6 rounded-2xl shadow-xl">
+            <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
               <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 border-b pb-4 border-gray-200">
                 Booking Summary
               </h1>
