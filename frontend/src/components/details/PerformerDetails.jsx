@@ -307,7 +307,7 @@ const PerformerProfileForm = () => {
     const token = localStorage.getItem("token");
     try {
       await axios.post(
-        `https://performly-backend.onrender.com/api/performers/profile/${id}`,
+        `https://devops-1-4e4p.onrender.com/api/performers/profile/${id}`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );

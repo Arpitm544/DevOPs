@@ -16,7 +16,7 @@ const PaymentPage = () => {
       try {
         const token = localStorage.getItem("token");
         const res = await axios.get(
-          `https://performly-backend.onrender.com/api/bookings/price/${bookingId}`,
+          `https://devops-1-4e4p.onrender.com/api/bookings/price/${bookingId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -37,7 +37,7 @@ const PaymentPage = () => {
       const amount = price;
 
       const orderRes = await axios.post(
-        `https://performly-backend.onrender.com/api/payment/createOrder`,
+        `https://devops-1-4e4p.onrender.com/api/payment/createOrder`,
         { amount }
       );
 
@@ -52,7 +52,7 @@ const PaymentPage = () => {
         order_id,
         handler: async function (response) {
           const verifyRes = await axios.post(
-            `https://performly-backend.onrender.com/api/payment/verifyPayment`,
+            `https://devops-1-4e4p.onrender.com/api/payment/verifyPayment`,
             {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
@@ -62,7 +62,7 @@ const PaymentPage = () => {
 
           if (verifyRes.data.message === "Payment verified") {
             await axios.put(
-              `https://performly-backend.onrender.com/api/bookings/${bookingId}/payment`,
+              `https://devops-1-4e4p.onrender.com/api/bookings/${bookingId}/payment`,
               { paymentStatus: "Paid" },
               {
                 headers: {

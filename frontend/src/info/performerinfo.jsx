@@ -21,7 +21,7 @@ const Performerinfo = () => {
     const fetchPerformer = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`https://performly-backend.onrender.com/api/performers/${id}`);
+        const res = await axios.get(`https://devops-1-4e4p.onrender.com/api/performers/${id}`);
         setPerformer(res.data);
         setError("");
       } catch (err) {

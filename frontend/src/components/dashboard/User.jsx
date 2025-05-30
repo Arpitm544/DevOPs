@@ -46,7 +46,7 @@ const User = () => {
   useEffect(() => {
     const fetchPerformers = async () => {
       try {
-        const res = await axios.get(`https://performly-backend.onrender.com/api/performers/`);
+        const res = await axios.get(`https://devops-1-4e4p.onrender.com/api/performers/`);
         setPerformers(res.data);
         const uniqueCategories = Array.from(new Set(res.data.map(p => p.category))).filter(Boolean);
         setCategories(uniqueCategories);
@@ -63,7 +63,7 @@ const User = () => {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get(`https://performly-backend.onrender.com/api/users/profile`, {
+        const res = await axios.get(`https://devops-1-4e4p.onrender.com/api/users/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

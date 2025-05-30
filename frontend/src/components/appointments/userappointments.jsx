@@ -16,7 +16,7 @@ const Userappointments = () => {
     const fetchBookings = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get(`https://performly-backend.onrender.com/api/bookings/by-client/${id}`, {
+        const res = await axios.get(`https://devops-1-4e4p.onrender.com/api/bookings/by-client/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setBookings(res.data);

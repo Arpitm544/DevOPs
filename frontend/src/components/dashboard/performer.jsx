@@ -17,7 +17,7 @@ const BookingsByPerformer = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const res = await axios.get(`https://performly-backend.onrender.com/api/bookings/${id}`, {
+        const res = await axios.get(`https://devops-1-4e4p.onrender.com/api/bookings/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -36,7 +36,7 @@ const BookingsByPerformer = () => {
   useEffect(() => {
     const fetchPerformer = async () => {
       try {
-        const res = await axios.get(`https://performly-backend.onrender.com/api/performers/${id}`);
+        const res = await axios.get(`https://devops-1-4e4p.onrender.com/api/performers/${id}`);
         setPerformer(res.data);
       } catch (err) {
         console.error(
@@ -51,7 +51,7 @@ const BookingsByPerformer = () => {
   const handleUpdateStatus = async (bookingId, status) => {
     try {
       const res = await axios.put(
-        `https://performly-backend.onrender.com/api/bookings/${bookingId}/status`,
+        `https://devops-1-4e4p.onrender.com/api/bookings/${bookingId}/status`,
         { status },
         {
           headers: {
