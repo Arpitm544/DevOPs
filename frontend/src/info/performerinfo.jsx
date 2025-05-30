@@ -47,7 +47,7 @@ const Performerinfo = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        `${BACKEND_URL}/api/bookings`,
+        `https://devops-1-4e4p.onrender.com/api/bookings`,
         {
           performerId: id,
           ...bookingData,
